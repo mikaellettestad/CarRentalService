@@ -3,8 +3,6 @@
     public enum RegistrationResult
     {
         Success,
-        WrongSocialSecurityNumber,
-        WrongRegistrationNumber,
-        WrongMeterReaderNumber
+        CarNotFound
     }
 }

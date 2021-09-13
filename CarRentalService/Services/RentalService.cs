@@ -22,17 +22,22 @@ namespace CarRentalService.Services
         {
             var requestedCar = _carRepository.GetCar(registrationNumber, carCategory);
 
-            requestedCar.MeterReading = meterReading;
+            if(requestedCar != null)
+            {
+                requestedCar.MeterReading = meterReading;
 
-            var carDelivery = new CarDelivery(bookingNumber, new Customer(socialSecurityNumber), requestedCar, date);
+                var carDelivery = new CarDelivery(bookingNumber, new Customer(socialSecurityNumber), requestedCar, date);
             
-            carDelivery.Car.MeterReading = meterReading;
+                carDelivery.Car.MeterReading = meterReading;
             
-            _carRepository.UpdateCar(carDelivery.Car);
+                _carRepository.UpdateCar(carDelivery.Car);
 
-            _rentalRepository.AddDelivery(carDelivery);
+                _rentalRepository.AddDelivery(carDelivery);
 
-            return RegistrationResult.Success;
+                return RegistrationResult.Success;
+            }
+
+            return RegistrationResult.CarNotFound;
         }
 
         public RegistrationResult ReturnCar(int bookingNumber, DateTime date, int meterReading)
