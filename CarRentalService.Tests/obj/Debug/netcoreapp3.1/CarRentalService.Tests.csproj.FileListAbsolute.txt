@@ -101,3 +101,5 @@ C:\repos\CarRentalService\CarRentalService.Tests\bin\Debug\netcoreapp3.1\CarRent
 C:\repos\CarRentalService\CarRentalService.Tests\bin\Debug\netcoreapp3.1\CarRentalService.exe
 C:\repos\CarRentalService\CarRentalService.Tests\bin\Debug\netcoreapp3.1\CarRentalService.dll
 C:\repos\CarRentalService\CarRentalService.Tests\bin\Debug\netcoreapp3.1\CarRentalService.pdb
+C:\repos\CarRentalService\CarRentalService.Tests\bin\Debug\netcoreapp3.1\Castle.Core.dll
+C:\repos\CarRentalService\CarRentalService.Tests\bin\Debug\netcoreapp3.1\Moq.dll

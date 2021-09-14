@@ -3,9 +3,9 @@ using System;
 
 namespace CarRentalService.Models
 {
-    public class CarDelivery : Rental
+    public class CarDeliveryDetails : RentalDetails
     {
-        public CarDelivery(int bookingNumber, Customer customer, Car car, DateTime date) : base (bookingNumber, customer, car, date)
+        public CarDeliveryDetails(int bookingNumber, Customer customer, Car car, DateTime date) : base (bookingNumber, customer, car, date)
         {
             BookingNumber = bookingNumber;
             Car = car;

@@ -3,6 +3,10 @@
     public enum RegistrationResult
     {
         Success,
-        CarNotFound
+        DeliveryDetailsNotFound,
+        InvalidMeterReader,
+        InvalidDate,
+        CouldNotRegisterDelivery,
+        CouldNotRegisterReturn
     }
 }

@@ -8,29 +8,26 @@ namespace CarRentalService.Repositories
 {
     public class RentalRepository : IRentalRepository
     {
-        public List<CarDelivery> CarDeliveries { get; set; } = new List<CarDelivery>();
-        public List<CarReturn> CarReturns { get; set; } = new List<CarReturn>();
-        public void AddDelivery(CarDelivery delivery)
+        public List<CarDeliveryDetails> CarDeliveries { get; set; } = new List<CarDeliveryDetails>();
+        public List<CarReturnDetails> CarReturns { get; set; } = new List<CarReturnDetails>();
+        public void AddDelivery(CarDeliveryDetails delivery)
         {
             CarDeliveries.Add(delivery);
         }
 
-        public void AddReturn(CarReturn carReturn)
+        public void AddReturn(CarReturnDetails carReturn)
         {
             CarReturns.Add(carReturn);
         }
 
-        public CarDelivery GetDelivery(int bookingNumber)
+        public CarDeliveryDetails GetDelivery(int bookingNumber)
         {
             return CarDeliveries.Where(r => r.BookingNumber == bookingNumber).SingleOrDefault();
         }
 
-        private void UpdateDelivery(int bookingNumber)
+        public CarReturnDetails GetReturn(int bookingNumber)
         {
-            //var delivery = GetDelivery();
-
-            var delivery = GetDelivery(1);
-
+            return CarReturns.Where(r => r.BookingNumber == bookingNumber).SingleOrDefault();
         }
     }
 }

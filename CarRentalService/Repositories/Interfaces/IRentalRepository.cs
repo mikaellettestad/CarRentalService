@@ -1,12 +1,12 @@
 ﻿using CarRentalService.Models;
-using System;
 
 namespace CarRentalService.Repositories.Interfaces
 {
     public interface IRentalRepository
     {
-        public void AddDelivery(CarDelivery delivery);
-        CarDelivery GetDelivery(int bookingNumber);
-        void AddReturn(CarReturn carReturn);
+        public void AddDelivery(CarDeliveryDetails delivery);
+        CarDeliveryDetails GetDelivery(int bookingNumber);
+        void AddReturn(CarReturnDetails carReturn);
+        CarReturnDetails GetReturn(int bookingNumber);
     }
 }

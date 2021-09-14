@@ -1,68 +1,97 @@
 ﻿using CarRentalService.Models;
 using CarRentalService.Repositories;
+using CarRentalService.Repositories.Interfaces;
 using CarRentalService.Services.Interfaces;
 using CarRentalService.Types;
 using System;
 
 namespace CarRentalService.Services
 {
-    class RentalService : IRentalService
+    public class RentalService : IRentalService
     {
-        private readonly RentalRepository _rentalRepository;
-        private readonly CarRepository _carRepository;
-        private CarDelivery CurrentCarDelivery { get; set; }
-        private CarReturn CurrentCarReturn { get; set; }
-        public RentalService(RentalRepository rentalRepository, CarRepository carRepository)
+        private readonly IRentalRepository _rentalRepository;
+        private CarDeliveryDetails CurrentCarDeliveryDetails { get; set; }
+        private CarReturnDetails CurrentCarReturnDetails { get; set; }
+        public RentalService(IRentalRepository rentalRepository)
         {
             _rentalRepository = rentalRepository;
-            _carRepository = carRepository;
         }
 
         public RegistrationResult DeliverCar(int bookingNumber, string registrationNumber, string socialSecurityNumber, CarCategory carCategory, DateTime date, int meterReading)
         {
-            var requestedCar = _carRepository.GetCar(registrationNumber, carCategory);
+            var carDeliveryDetails = _rentalRepository.GetDelivery(bookingNumber);
 
-            if(requestedCar != null)
+            if(carDeliveryDetails == null)
             {
-                requestedCar.MeterReading = meterReading;
+                var customer = new Customer(socialSecurityNumber);
 
-                var carDelivery = new CarDelivery(bookingNumber, new Customer(socialSecurityNumber), requestedCar, date);
+                var carToDeliver = new Car(carCategory, registrationNumber, meterReading);
+
+                carDeliveryDetails = new CarDeliveryDetails(bookingNumber, customer, carToDeliver, date);
+
+                _rentalRepository.AddDelivery(carDeliveryDetails);
             
-                carDelivery.Car.MeterReading = meterReading;
-            
-                _carRepository.UpdateCar(carDelivery.Car);
-
-                _rentalRepository.AddDelivery(carDelivery);
-
                 return RegistrationResult.Success;
             }
 
-            return RegistrationResult.CarNotFound;
+            return RegistrationResult.CouldNotRegisterDelivery;
         }
 
         public RegistrationResult ReturnCar(int bookingNumber, DateTime date, int meterReading)
         {
             var carDelivery = _rentalRepository.GetDelivery(bookingNumber);
 
-            CurrentCarDelivery = carDelivery;
+            var carReturn = _rentalRepository.GetReturn(bookingNumber);
 
-            var carReturn = CreateCarReturn(carDelivery, date, meterReading);
+            if((carDelivery != null) && (carReturn == null))
+            {
+                CurrentCarDeliveryDetails = carDelivery;
 
-            _rentalRepository.AddReturn(carReturn);
+                carReturn = CreateCarReturn(carDelivery, date, meterReading);
 
-            CurrentCarReturn = carReturn;
+                _rentalRepository.AddReturn(carReturn);
 
-            return RegistrationResult.Success;
+                CurrentCarReturnDetails = carReturn;
+
+                int kilometers = GetKilometers();
+
+                decimal days = GetDays();
+
+                if((kilometers > 0) && (days > 0))
+                {
+                    return RegistrationResult.Success;
+                }
+                else
+                {
+                    if(kilometers <= 0){
+
+                        return RegistrationResult.InvalidMeterReader;
+                    }
+
+                    return RegistrationResult.InvalidDate;
+                }
+            }
+
+            if(carReturn != null)
+            {
+                return RegistrationResult.CouldNotRegisterReturn;
+            }
+
+            return RegistrationResult.DeliveryDetailsNotFound;
         }
 
-        private CarReturn CreateCarReturn(CarDelivery delivery, DateTime date, int meterReading)
+        private CarReturnDetails CreateCarReturn(CarDeliveryDetails carDeliveryDetails, DateTime date, int meterReading)
         {
-            var carReturn = new CarReturn(delivery.BookingNumber, 
-                delivery.Customer, 
-                new Car(delivery.Car.CarCategory, 
-                delivery.Car.RegistrationNumber, 
-                meterReading), 
-                date);
+            var carReturn = new CarReturnDetails(
+                carDeliveryDetails.BookingNumber, 
+                carDeliveryDetails.Customer, 
+                new Car(
+                    carDeliveryDetails.Car.CarCategory, 
+                    carDeliveryDetails.Car.RegistrationNumber, 
+                    meterReading
+                    ), 
+                date
+                );
 
             carReturn.Car.MeterReading = meterReading;
 
@@ -71,15 +100,11 @@ namespace CarRentalService.Services
 
         // basDygnsHyra
         // basKmPris
-        internal decimal GetPrice(decimal basePricePerDay, decimal basePricePerKilometer)
+        public decimal GetPrice(decimal basePricePerDay, decimal basePricePerKilometer)
         {
             decimal price = 0;
 
-            var res1 = GetDays();
-
-            var res2 = GetKilometers();
-
-            switch (CurrentCarReturn.Car.CarCategory)
+            switch (CurrentCarReturnDetails.Car.CarCategory)
             {
                 case CarCategory.Combi:
                     price = (basePricePerDay * GetDays() * 1.3m) + (basePricePerKilometer * GetKilometers());
@@ -98,7 +123,7 @@ namespace CarRentalService.Services
         // antalDygn
         private decimal GetDays()
         {
-            var span = CurrentCarReturn.Date.Subtract(CurrentCarDelivery.Date);
+            var span = CurrentCarReturnDetails.Date.Subtract(CurrentCarDeliveryDetails.Date);
             
             return (decimal)span.TotalDays;
         }
@@ -106,7 +131,7 @@ namespace CarRentalService.Services
         // antalKm
         private int GetKilometers()
         {
-            return (CurrentCarReturn.Car.MeterReading - CurrentCarDelivery.Car.MeterReading);
+            return (CurrentCarReturnDetails.Car.MeterReading - CurrentCarDeliveryDetails.Car.MeterReading);
         }
     }
 }
