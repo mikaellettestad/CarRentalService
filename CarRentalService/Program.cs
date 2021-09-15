@@ -41,7 +41,7 @@ namespace CarRentalService
                 "Återlämningsdata\n" +
                 "================================================\n" +
                 "Bokningsnummer: 1 \n" +
-                "Datum: 2021-09-01 \n" +
+                "Datum: 2021-09-02 \n" +
                 "Tid: 15.00 \n" +
                 "Mätarställning: 15 km\n"
                 );
@@ -61,7 +61,7 @@ namespace CarRentalService
 
             registrationResult = rentalService.ReturnCar(
                 1,
-                new DateTime(2021, 9, 1, 15, 00, 0), 15
+                new DateTime(2021, 9, 2, 15, 0, 0), 15
                 );
 
             switch (registrationResult)
